@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
+import 'screens/inbox_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       home: LoginScreen(),
+      // home: InboxScreen(), // Décommenter pour tester Inbox
     );
   }
 }
