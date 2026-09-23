@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'register_screen.dart';
+import 'inbox_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -38,8 +40,11 @@ class _LoginScreenState extends State<LoginScreen> {
         final data = jsonDecode(response.body);
         print('Token: ${data['token']}');
         print('User: ${data['user']}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login réussi!')),
+        
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => InboxScreen()),
         );
       } else {
         setState(() => errorMessage = 'Email ou password incorrect');
@@ -118,6 +123,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: isLoading
                     ? CircularProgressIndicator(color: Colors.white)
                     : Text('Login'),
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  ),
+                  child: Text(
+                    "Don't have account? Sign up",
+                    style: TextStyle(fontSize: 13, color: Colors.blue),
+                  ),
+                ),
               ),
             ],
           ),

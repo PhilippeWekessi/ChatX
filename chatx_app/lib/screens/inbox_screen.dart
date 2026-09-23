@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart';
 
 class InboxScreen extends StatefulWidget {
   @override
@@ -7,6 +8,7 @@ class InboxScreen extends StatefulWidget {
 
 class _InboxScreenState extends State<InboxScreen> {
   String selectedFilter = 'Tous';
+  int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +91,22 @@ class _InboxScreenState extends State<InboxScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.grey[850],
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() => currentIndex = index);
+          
+          if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen()),
+            );
+          }
+        },
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Messages'),
           BottomNavigationBarItem(icon: Icon(Icons.call), label: 'Appels'),
           BottomNavigationBarItem(icon: Icon(Icons.collections), label: 'Stories'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Paramètres'),
+          BottomNavigationBarItem(icon: Icon(Icons.logout), label: 'Déconnexion'),
         ],
       ),
     );
@@ -148,7 +161,7 @@ class _InboxScreenState extends State<InboxScreen> {
       leading: CircleAvatar(
         radius: 24,
         backgroundColor: Colors.blue,
-        child: Text(conv['name'][0], style: TextStyle(color: Colors.white)),
+        child: Text(conv['name'][0], style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       title: Row(
         children: [
@@ -167,7 +180,6 @@ class _InboxScreenState extends State<InboxScreen> {
       subtitle: Text(conv['message'], style: TextStyle(color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        alignItems: TextAlign.right,
         children: [
           Text(conv['time'], style: TextStyle(fontSize: 12, color: Colors.grey)),
           if (conv['unread'] > 0)
@@ -202,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final messages = [
     {'sender': 'other', 'text': 'Coucou ! Tu as pu jeter un œil aux nouveaux écrans de l\'app ?', 'time': '10:12', 'emoji': '✨'},
     {'sender': 'me', 'text': 'Yes, c\'est super propre ! J\'adore la palette sombre et les transitions.', 'time': '10:14'},
-    {'sender': 'other', 'text': 'Want to grab coffee?', 'time': '10:15', 'isVoice': true, 'duration': '0:24'},
+    {'sender': 'other', 'text': 'Voice message', 'time': '10:15', 'isVoice': true, 'duration': '0:24'},
   ];
 
   @override
@@ -215,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.contactName, style: TextStyle(color: Colors.white)),
+            Text(widget.contactName, style: TextStyle(color: Colors.white, fontSize: 16)),
             Text('En train d\'écrire...', style: TextStyle(fontSize: 12, color: Colors.green)),
           ],
         ),
@@ -262,7 +274,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ],
                           )
                         else
-                          Text(msg['text'], style: TextStyle(color: isSent ? Colors.white : Colors.white)),
+                          Text(msg['text'], style: TextStyle(color: isSent ? Colors.white : Colors.white, fontSize: 14)),
                         SizedBox(height: 4),
                         Text(msg['time'], style: TextStyle(fontSize: 10, color: isSent ? Colors.white70 : Colors.grey)),
                       ],
@@ -293,6 +305,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(color: Colors.grey[700]),
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
                   ),
                 ),
@@ -302,8 +315,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: IconButton(
                     icon: Icon(Icons.send, color: Colors.white, size: 18),
                     onPressed: () {
-                      print('Message: ${messageController.text}');
-                      messageController.clear();
+                      if (messageController.text.isNotEmpty) {
+                        print('Message: ${messageController.text}');
+                        messageController.clear();
+                      }
                     },
                   ),
                 ),
