@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'inbox_screen.dart';
+import 'sms_confirmation_screen.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -67,7 +67,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SMSValidationScreen()),
+          MaterialPageRoute(
+            builder: (context) => SMSConfirmationScreen(
+              phoneNumber: '+33 ${phoneController.text}',
+              firstName: firstNameController.text,
+              lastName: lastNameController.text,
+              email: emailController.text,
+            ),
+          ),
         );
       } else {
         setState(() => errorMessage = 'Erreur: ${response.statusCode}');
@@ -399,91 +406,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     phoneController.dispose();
     passwordController.dispose();
     passwordConfirmController.dispose();
-    super.dispose();
-  }
-}
-
-class SMSValidationScreen extends StatefulWidget {
-  const SMSValidationScreen({Key? key}) : super(key: key);
-
-  @override
-  State<SMSValidationScreen> createState() => _SMSValidationScreenState();
-}
-
-class _SMSValidationScreenState extends State<SMSValidationScreen> {
-  final otpController = TextEditingController();
-  bool isLoading = false;
-
-  Future<void> validateOTP() async {
-    if (otpController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Entrez le code OTP')),
-      );
-      return;
-    }
-
-    setState(() => isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const InboxScreen()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[850],
-        elevation: 0,
-        title: const Text('Validation SMS OTP'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.sms, size: 48, color: Colors.blue),
-            const SizedBox(height: 24),
-            const Text('Vérifiez votre numéro', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 12),
-            const Text('Un code SMS a été envoyé au +33 6 12 34 56 78', style: TextStyle(fontSize: 14, color: Colors.grey)),
-            const SizedBox(height: 32),
-            TextField(
-              controller: otpController,
-              style: const TextStyle(color: Colors.white, fontSize: 20, letterSpacing: 10),
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: '000000',
-                hintStyle: const TextStyle(color: Colors.grey),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[700]!),
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: isLoading ? null : validateOTP,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                backgroundColor: Colors.blue,
-              ),
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Vérifier'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    otpController.dispose();
     super.dispose();
   }
 }
