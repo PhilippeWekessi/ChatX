@@ -1,16 +1,22 @@
-# chatx_app
-
-A new Flutter project.
+# ChatX Flutter application
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Start the Laravel backend from the repository root:
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+php artisan serve
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+For Flutter Web, allow the local Flutter development origin in the backend
+`.env` file if you use a different web port:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
+```
+
+Run the app with the API URL when the backend is not using the default address:
+
+```sh
+flutter run -d chrome --dart-define=CHATX_API_BASE_URL=http://127.0.0.1:8000/api
+```

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'register_screen.dart';
 import 'inbox_screen.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -29,28 +28,24 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': emailController.text,
-          'password': passwordController.text,
-        }),
+      await AuthService.instance.login(
+        email: emailController.text.trim(),
+        password: passwordController.text,
       );
 
-      if (response.statusCode == 200) {
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const InboxScreen()),
-        );
-      } else {
-        setState(() => errorMessage = 'Email ou password incorrect');
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const InboxScreen()),
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        setState(() => errorMessage = error.message);
       }
-    } catch (e) {
-      setState(() => errorMessage = 'Erreur: $e');
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -107,10 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
               if (errorMessage.isNotEmpty)
-                Text(
-                  errorMessage,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                Text(errorMessage, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: isLoading ? null : login,
@@ -127,7 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterScreen(),
+                    ),
                   ),
                   child: const Text(
                     "Don't have account? Sign up",

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'sms_confirmation_screen.dart';
 import 'login_screen.dart';
+import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -50,39 +49,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'first_name': firstNameController.text,
-          'last_name': lastNameController.text,
-          'email': emailController.text,
-          'phone': phoneController.text,
-          'password': passwordController.text,
-          'password_confirmation': passwordConfirmController.text,
-        }),
+      await AuthService.instance.register(
+        firstName: firstNameController.text.trim(),
+        lastName: lastNameController.text.trim(),
+        email: emailController.text.trim(),
+        phone: phoneController.text.trim(),
+        password: passwordController.text,
+        passwordConfirmation: passwordConfirmController.text,
       );
 
-      if (response.statusCode == 201) {
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SMSConfirmationScreen(
-              phoneNumber: '+33 ${phoneController.text}',
-              firstName: firstNameController.text,
-              lastName: lastNameController.text,
-              email: emailController.text,
-            ),
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SMSConfirmationScreen(
+            phoneNumber: '+33 ${phoneController.text}',
+            firstName: firstNameController.text,
+            lastName: lastNameController.text,
+            email: emailController.text,
           ),
-        );
-      } else {
-        setState(() => errorMessage = 'Erreur: ${response.statusCode}');
+        ),
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        setState(() => errorMessage = error.message);
       }
-    } catch (e) {
-      setState(() => errorMessage = 'Erreur: $e');
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
